@@ -1,0 +1,8 @@
+
+- hosts: yayoi2
+  tasks:
+  - name: make a directory
+    file: path=/tmp/test state=directory
+
+  - name: hoge
+    hugepages: nr_pages=16
