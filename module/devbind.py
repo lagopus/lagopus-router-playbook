@@ -10,7 +10,7 @@ class Devbind(object):
     def __init__(self, module):
 
         self.module = module
-        self.device = module.params["device"]
+        self.device = self.pci_bus_num(module.params["device"])
         self.driver = module.params["driver"]
         self.sys_device_path = "{}/{}".format(SYS_DEVICES, self.device)
         self.sys_driver_path = "{}/{}".format(SYS_DRIVERS, self.driver)
@@ -26,6 +26,13 @@ class Devbind(object):
         if not os.path.exists(self.sys_driver_path):
             msg = "driver {} does not exist".format(self.driver)
             self.module.fail_json(msg = msg)
+
+
+    def pci_bus_num(self, device):
+        dom, bus, slot_func = device.split(":")
+        slt, fnc = slot_func.split(".")
+        return "{:04x}:{:02x}:{:02x}.{:x}".format(int(dom, 16), int(bus, 16),
+                                                  int(slt, 16), int(fnc, 16))
 
 
     def get_current_driver(self):
