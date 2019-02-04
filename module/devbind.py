@@ -30,12 +30,11 @@ class Devbind(object):
 
     def get_current_driver(self):
 
-        driver_path = "{}/{}".format(self.sys_device_path, "drvier")
+        driver_path = "{}/{}".format(self.sys_device_path, "driver")
         if not os.path.exists(driver_path):
             return None
         else:
-            path = os.readlink()
-            return os.path.basename(path)
+            return os.path.basename(os.readlink(driver_path))
 
     def will_changed(self):
 
@@ -67,17 +66,22 @@ class Devbind(object):
     def run(self):
 
         if not self.will_changed():
-            self.module_exit_json(changed = False)
+            self.module.exit_json(changed = False)
             
         # unbind
         if self.get_current_driver():
             unbind_path = "{}/driver/unbind".format(self.sys_device_path)
             self.sysfs_write(unbind_path, self.device)
         
+        # driver_override
+        override_path = "{}/driver_override".format(self.sys_device_path)
+        self.sysfs_write(override_path, self.driver)
+
         # bind
         bind_path = "{}/bind".format(self.sys_driver_path)
-        raise Exception(bind_path)
         self.sysfs_write(bind_path, self.device)
+
+        self.module.exit_json(changed = True)
 
 
 def main():
