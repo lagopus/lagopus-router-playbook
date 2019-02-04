@@ -79,9 +79,9 @@ class HugePages(object):
 def main():
     module = AnsibleModule(
         argument_spec = dict(
-            size = dict(required = False, type = "str", default = "2M"),
+            size     = dict(choices = [ "2M", "1G" ], default = "2M"),
             nr_pages = dict(required = True, type = "int"),
-            node = dict(required = False, type = "int", default = 0),
+            node     = dict(type = "int", default = 0),
         ),
         supports_check_mode = True
     )

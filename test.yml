@@ -15,4 +15,4 @@
     dpdk_install: build_shared_lib=true jobs=6
 
   - name: dev bind to dpdk
-    devbind: device=0000:01:00.0 driver=mlx5_core
+    devbind: device=0000:01:00.0 driver=igb_uio
