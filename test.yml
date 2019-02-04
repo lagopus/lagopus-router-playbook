@@ -12,4 +12,4 @@
     hugepages: nr_pages=1024
 
   - name: install dpdk
-    dpdk_install: build_shared_lib=false
+    dpdk_install: build_shared_lib=true jobs=6

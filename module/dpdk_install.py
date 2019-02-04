@@ -17,6 +17,7 @@ class DPDKInstall(object):
         self.url = module.params["url"] or u
         self.tar = "{}/dpdk-{}.tar.xz".format(self.build_dir, self.version)
         self.src = "{}/dpdk-stable-{}".format(self.build_dir, self.version)
+        self.igb_uio = "{}/build/kmod/igb_uio.ko".format(self.src)
 
 
     def write_dpdk_common_base(self, params):
@@ -72,6 +73,15 @@ class DPDKInstall(object):
                             return True
         return False
 
+    def check_kmod_installed(self, modname):
+        
+        with open("/proc/modules") as f:
+            for line in f:
+                mod = line.split(" ")[0]
+                if modname == mod:
+                    return True
+        return False
+
 
     def do(self, check = False):
 
@@ -82,6 +92,10 @@ class DPDKInstall(object):
             params.append(("CONFIG_RTE_BUILD_SHARED_LIB", "y"))
         else:
             params.append(("CONFIG_RTE_BUILD_SHARED_LIB", "n"))
+
+        """
+        XXX: Need to dedup module.run_command code lines!!
+        """
 
         # make build dir
         if not os.path.exists(self.build_dir):
@@ -163,6 +177,36 @@ class DPDKInstall(object):
             changed = True
             msg += " compile and install dpdk from {}.".format(self.src)
 
+        # install uio kernel module
+        if not self.check_kmod_installed("uio"):
+            if check:
+                msg = "install uio kernel module"
+                self.module.exit_json(changed = True, msg = msg)
+
+            args = [self.module.get_bin_path("modprobe"), "uio"]
+            (rc, stdout, stderr) = self.module.run_command(args)
+            if rc != 0:
+                msg = "failed to modprobe uio: {}".format(stderr)
+                self.module.fail_json(msg = msg)
+            
+            changed = True
+            msg += " install uio kernel module."
+
+        # install igb_uio kernel module
+        if not self.check_kmod_installed("igb_uio"):
+            if check:
+                msg = "install igb_uio kernel module"
+                self.module.exit_json(changed = True, msg = msg)
+
+            args = [self.module.get_bin_path("insmod"), self.igb_uio]
+            (rc, stdout, stderr) = self.module.run_command(args)
+            if rc != 0:
+                msg = "failed to insmod igb_uio: {}".format(stderr)
+                self.module.fail_json(msg = msg)
+
+            changed = True
+            msg += " install igb_uio kernel module."
+
         if check:
             self.module.exit_json(changed = False)
 
@@ -181,16 +225,12 @@ def main():
 
     module = AnsibleModule(
         argument_spec = dict(
-            version = dict(required = False, type = "str",
-                           default = "17.11.1"),
-            url = dict(required = False, type = "str", default = None),
-            target = dict(required = False, type = "str",
-                          default = "x86_64-native-linuxapp-gcc"),
-            build_dir = dict(required = False, type = "str",
-                             default = "/usr/src"),
-            build_shared_lib = dict(required = False, type = "bool",
-                                    default = False),
-            jobs = dict(required = False, type = "int", default = 1)
+            version          = dict(default = "17.11.1"),
+            url              = dict(default = None),
+            target           = dict(default = "x86_64-native-linuxapp-gcc"),
+            build_dir        = dict(default = "/usr/src"),
+            build_shared_lib = dict(type = "bool", default = False),
+            jobs             = dict(type = "int", default = 1)
         ),
         supports_check_mode = True
     )
