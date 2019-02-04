@@ -1,8 +1,15 @@
 
 - hosts: yayoi2
+  become: yes
   tasks:
-  - name: make a directory
-    file: path=/tmp/test state=directory
+  - name: install required packetgs
+    apt: name={{ item }}
+    with_items:
+      - libnuma-dev
+      - libelf-dev
 
-  - name: hoge
-    hugepages: nr_pages=16
+  - name: set hugepages
+    hugepages: nr_pages=1024
+
+  - name: install dpdk
+    dpdk_install: build_shared_lib=false
