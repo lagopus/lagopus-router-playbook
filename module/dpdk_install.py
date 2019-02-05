@@ -20,6 +20,14 @@ class DPDKInstall(object):
         self.igb_uio = "{}/build/kmod/igb_uio.ko".format(self.src)
 
 
+    def run_cmd(self, args, errmsg):
+        args[0] = self.module.get_bin_path(args[0], required = True)
+        (rc, stdout, stderr) = self.module.run_command(args)
+        if rc != 0:
+            msg = "{}: {}".format(errmsg, stderr)
+            self.module.fail_json(msg = msg)
+
+
     def write_dpdk_common_base(self, params):
         """
         params is a list of tuples that includes key and value.
@@ -31,14 +39,9 @@ class DPDKInstall(object):
 
         # save original config if not moved
         if not os.path.exists(conf_orig):
-            args = [self.module.get_bin_path("mv", required = True),
-                    conf, conf_orig]
-            (rc, stdout, stderr) = self.module.run_command(args)
-            if rc != 0:
-                msg = "failed to mv {} to {}: {}".format(conf, confi_orig,
-                                                         stderr)
-                self.module.fail_json(msg = msg)
-                
+            self.run_cmd(["mv", conf, conf_orig],
+                         "failed to mv {} to {}".format(conf, conf_orig))
+
         try:
             ofp = open(conf, "w")
             ifp = open(conf_orig, "r")
@@ -93,9 +96,6 @@ class DPDKInstall(object):
         else:
             params.append(("CONFIG_RTE_BUILD_SHARED_LIB", "n"))
 
-        """
-        XXX: Need to dedup module.run_command code lines!!
-        """
 
         # make build dir
         if not os.path.exists(self.build_dir):
@@ -103,13 +103,8 @@ class DPDKInstall(object):
                 msg = "build dir {} does not exist".format(self.build_dir)
                 self.module.exit_json(changed = True, msg = msg)
 
-            args = [self.module.get_bin_path("mkdir", required = True),
-                    "-p", self.build_dir]
-            (rc, stdout, stderr) = self.module.run_command(args)
-            if rc != 0:
-                msg = "failed to create {}: {}".format(self.build_dir, stderr)
-                self.module.fail_json(msg = msg)
-            
+            self.run_cmd(["mkdir", "-p", self.build_dir],
+                         "failed to create {}".format(self.build_dir))
             changed = True
             msgs.append("make {}.".format(self.build_dir))
             
@@ -121,20 +116,12 @@ class DPDKInstall(object):
                 self.module.exit_json(changed = True, msg = msg)
 
             if not os.path.exists(self.tar):
-                args = [self.module.get_bin_path("wget", required = True),
-                        self.url, "-O", self.tar]
-                (rc, stdout, stderr) = self.module.run_command(args)
-                if rc != 0:
-                    msg = "failed to get {}: {}".format(self.url, stderr)
-                    self.module.fail_json(msg = msg)
+                self.run_cmd(["wget", self.url, "-O", self.tar],
+                             "failed to get {}".format(self.url))
 
             # extract dpdk source
-            args = [self.module.get_bin_path("tar", required = True),
-                    "xf", self.tar, "-C", self.build_dir]
-            (rc, stdout, stderr) = self.module.run_command(args)
-            if rc != 0:
-                msg = "failed to extract {}: {}, {}".format(self.tar, stderr)
-                self.module.fail_json(msg = msg)
+            self.run_cmd(["tar", "xf", self.tar, "-C", self.build_dir],
+                         "failed to extract {}".format(self.tar))
 
             changed = True
             msgs.append("extract dpdk source on {}.".format(self.tar))
@@ -151,28 +138,16 @@ class DPDKInstall(object):
             self.write_dpdk_common_base(params)
 
             # make config
-            args = [self.module.get_bin_path("make", required = True),
-                    "-C", self.src, "T={}".format(self.target), "config"]
-            (rc, stdout, stderr) = self.module.run_command(args)
-            if rc != 0:
-                msg = "failed to make config dpdk: {}".format(stderr)
-                self.module.fail_json(msg = msg)
+            self.run_cmd(["make", "-C", self.src, "T={}".format(self.target),
+                          "config"], "failed to make config dpdk")
 
             # make
-            args = [self.module.get_bin_path("make", required = True),
-                    "-C", self.src, "-j", str(self.jobs)]
-            (rc, stdout, stderr) = self.module.run_command(args)
-            if rc != 0:
-                msg = "failed to compile dpdk: {}, {}".format(stderr, stdout)
-                self.module.fail_json(msg = msg)
+            self.run_cmd(["make", "-C", self.src, "-j", str(self.jobs)],
+                         "failed to compile dpdk")
 
             # make install
-            args = [self.module.get_bin_path("make", required = True),
-                    "-C", self.src, "install"]
-            (rc, stdout, stderr) = self.module.run_command(args)
-            if rc != 0:
-                msg = "failed to install dpdk: {}".format(stderr)
-                self.module.fail_json(msg = msg)
+            self.run_cmd(["make", "-C", self.src, "install"],
+                         "failed to install dpdk")
 
             changed = True
             msgs.append(" compile and install dpdk from {}.".format(self.src))
@@ -183,11 +158,7 @@ class DPDKInstall(object):
                 msg = "install uio kernel module"
                 self.module.exit_json(changed = True, msg = msg)
 
-            args = [self.module.get_bin_path("modprobe"), "uio"]
-            (rc, stdout, stderr) = self.module.run_command(args)
-            if rc != 0:
-                msg = "failed to modprobe uio: {}".format(stderr)
-                self.module.fail_json(msg = msg)
+            self.run_cmd(["modprobe", "uio"], "failed to modprobe uio")
             
             changed = True
             msgs.append("install uio kernel module.")
@@ -198,11 +169,7 @@ class DPDKInstall(object):
                 msg = "install igb_uio kernel module"
                 self.module.exit_json(changed = True, msg = msg)
 
-            args = [self.module.get_bin_path("insmod"), self.igb_uio]
-            (rc, stdout, stderr) = self.module.run_command(args)
-            if rc != 0:
-                msg = "failed to insmod igb_uio: {}".format(stderr)
-                self.module.fail_json(msg = msg)
+            self.run_cmd(["insmod", self.igb_uio], "failed to insmod igb_uio")
 
             changed = True
             msgs.append("install igb_uio kernel module.")

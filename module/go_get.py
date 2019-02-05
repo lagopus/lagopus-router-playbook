@@ -17,6 +17,7 @@ class GoGet(object):
 
         
     def run_cmd(self, args, errmsg):
+        args[0] = self.module.get_bin_path(args[0], required = True)
         (rc, stdout, stderr) = self.module.run_command(args)
         if rc != 0:
             msg = "{}: {}".format(errmsg, stderr)
@@ -29,8 +30,7 @@ class GoGet(object):
             msg = "create directory {}".format(path)
             self.module.exit_json(changed = True, msg = msg)
 
-        self.run_cmd([self.module.get_bin_path("mkdir", required = True),
-                      "-p", path],
+        self.run_cmd(["mkdir", "-p", path],
                      "failed to create {}".format(path))
 
 
@@ -55,8 +55,7 @@ class GoGet(object):
             self.module.exit_json(changed = True, msg = msg)
 
         os.environ["GOPATH"] = self.gopath
-        self.run_cmd([self.module.get_bin_path("go", required = True),
-                      "get", self.package],
+        self.run_cmd(["go", "get", self.package],
                      "failed to go get {}".format(self.gopath))
         return True
 
