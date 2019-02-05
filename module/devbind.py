@@ -23,7 +23,7 @@ class Devbind(object):
             msg = "deivce {} does not exist".format(self.device)
             self.module.fail_json(msg = msg)
 
-        if not os.path.exists(self.sys_driver_path):
+        if self.driver and not os.path.exists(self.sys_driver_path):
             msg = "driver {} does not exist".format(self.driver)
             self.module.fail_json(msg = msg)
 
@@ -80,6 +80,10 @@ class Devbind(object):
             unbind_path = "{}/driver/unbind".format(self.sys_device_path)
             self.sysfs_write(unbind_path, self.device)
         
+        if not self.driver:
+            # only unbind driver
+            self.module.exit_json(changed = True)
+
         # driver_override
         override_path = "{}/driver_override".format(self.sys_device_path)
         self.sysfs_write(override_path, self.driver)

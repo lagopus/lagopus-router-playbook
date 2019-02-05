@@ -85,7 +85,7 @@ class DPDKInstall(object):
 
     def do(self, check = False):
 
-        msg = ""
+        msgs = []
         changed = False
         params = []
         if self.build_shared_lib:
@@ -111,7 +111,7 @@ class DPDKInstall(object):
                 self.module.fail_json(msg = msg)
             
             changed = True
-            msg = "make {}.".format(self.build_dir)
+            msgs.append("make {}.".format(self.build_dir))
             
         # download and extract dpdk source
         if not os.path.exists(self.src):
@@ -137,7 +137,7 @@ class DPDKInstall(object):
                 self.module.fail_json(msg = msg)
 
             changed = True
-            msg += " extract dpdk source on {}.".format(self.tar)
+            msgs.append("extract dpdk source on {}.".format(self.tar))
 
         # compile and install dpdk (if not installed or config changed)
         if (not os.path.exists("/usr/local/include/dpdk") or
@@ -175,7 +175,7 @@ class DPDKInstall(object):
                 self.module.fail_json(msg = msg)
 
             changed = True
-            msg += " compile and install dpdk from {}.".format(self.src)
+            msgs.append(" compile and install dpdk from {}.".format(self.src))
 
         # install uio kernel module
         if not self.check_kmod_installed("uio"):
@@ -190,7 +190,7 @@ class DPDKInstall(object):
                 self.module.fail_json(msg = msg)
             
             changed = True
-            msg += " install uio kernel module."
+            msgs.append("install uio kernel module.")
 
         # install igb_uio kernel module
         if not self.check_kmod_installed("igb_uio"):
@@ -205,12 +205,12 @@ class DPDKInstall(object):
                 self.module.fail_json(msg = msg)
 
             changed = True
-            msg += " install igb_uio kernel module."
+            msgs.append("install igb_uio kernel module.")
 
         if check:
             self.module.exit_json(changed = False)
 
-        msg = msg if changed else None
+        msg = " ".join(msgs) if changed else None
         self.module.exit_json(changed = changed, msg = msg)
 
 
