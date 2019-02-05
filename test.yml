@@ -16,14 +16,16 @@
   - name: install dpdk
     dpdk_install: build_shared_lib=true jobs=6
 
-  - name: dev bind to dpdk
+  - name: bind device to dpdk driver
     devbind: device=000:01:00.0 driver=igb_uio
 
 
 - hosts: yayoi2
+  vars:
+    GOPATH : /home/upa/go2
   tasks:
   - name: install openconfigd
-    go_get: GOPATH=/home/upa/go2 package={{ item }}
+    go_get: GOPATH={{ GOPATH }} package={{ item }}
     with_items:
       - github.com/coreswitch/openconfigd/openconfigd
       - github.com/coreswitch/openconfigd/cli_command
@@ -37,15 +39,15 @@
       - make install
       - cp ../bash_completion.d/cli /etc/bash_completion.d/
     args:
-      chdir: /home/upa/go2/src/github.com/coreswitch/openconfigd/cli
+      chdir: "{{ GOPATH }}/src/github.com/coreswitch/openconfigd/cli"
 
   - name: create vsw src directroy
-    file: path=/home/upa/go2/src/github.com/lagopus state=directory
+    file: path={{ GOPATH }}/src/github.com/lagopus state=directory
 
   - name: download vsw
     git:
       repo: https://github.com/lagopus/vsw.git
-      dest: /home/upa/go2/src/github.com/lagopus/vsw
+      dest: "{{ GOPATH }}/src/github.com/lagopus/vsw"
 
   - name: install vsw
     command: "{{ item }}"
@@ -53,6 +55,11 @@
       - dep ensure
       - go install
     environment:
-      GOPATH: /home/upa/go2
+      GOPATH: "{{ GOPATH }}"
     args:
-      chdir: /home/upa/go2/src/github.com/lagopus/vsw
+      chdir: "{{ GOPATH }}/src/github.com/lagopus/vsw"
+
+  - name: install lagopus-router
+    git:
+      repo: https://github.com/lagopus/lagopus-router.git
+      dest: "{{ GOPATH }}/src/github.com/lagopus/lagopus-router"
