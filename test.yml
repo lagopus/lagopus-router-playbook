@@ -2,11 +2,13 @@
 - hosts: yayoi2
   become: yes
   tasks:
-  - name: install required packetgs
+  - name: install required packages
     apt: name={{ item }}
     with_items:
       - libnuma-dev
       - libelf-dev
+      - golang
+      - go-dep
 
   - name: set hugepages
     hugepages: nr_pages=1024
@@ -16,3 +18,41 @@
 
   - name: dev bind to dpdk
     devbind: device=000:01:00.0 driver=igb_uio
+
+
+- hosts: yayoi2
+  tasks:
+  - name: install openconfigd
+    go_get: GOPATH=/home/upa/go2 package={{ item }}
+    with_items:
+      - github.com/coreswitch/openconfigd/openconfigd
+      - github.com/coreswitch/openconfigd/cli_command
+
+  - name: configure, make, make install cli
+    become: yes
+    command: "{{ item }}"
+    with_items:
+      - ./configure
+      - make
+      - make install
+      - cp ../bash_completion.d/cli /etc/bash_completion.d/
+    args:
+      chdir: /home/upa/go2/src/github.com/coreswitch/openconfigd/cli
+
+  - name: create vsw src directroy
+    file: path=/home/upa/go2/src/github.com/lagopus state=directory
+
+  - name: download vsw
+    git:
+      repo: https://github.com/lagopus/vsw.git
+      dest: /home/upa/go2/src/github.com/lagopus/vsw
+
+  - name: install vsw
+    command: "{{ item }}"
+    with_items:
+      - dep ensure
+      - go install
+    environment:
+      GOPATH: /home/upa/go2
+    args:
+      chdir: /home/upa/go2/src/github.com/lagopus/vsw
