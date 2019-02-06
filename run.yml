@@ -1,0 +1,9 @@
+
+- hosts: yayoi2
+  vars:
+    GOPATH : /home/upa/go2
+  environment:
+    GOPATH: "{{ GOPATH }}"
+  tasks:
+  - name: put vsw.conf
+    copy: src=vsw.conf dest=/home/upa/work/vsw-dir/vsw1.conf

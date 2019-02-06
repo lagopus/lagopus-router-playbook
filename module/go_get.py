@@ -11,6 +11,11 @@ class GoGet(object):
         self.gopath = module.params["GOPATH"]
         self.package = module.params["package"]
 
+        if not self.gopath:
+            if not os.environ.has_key("GOPATH"):
+                self.module.fail_json(msg = "GOPATH not specified")
+            self.gopath = os.environ["GOPATH"]
+
         self.bin = "{}/bin".format(self.gopath)
         self.pkg = "{}/pkg".format(self.gopath)
         self.src = "{}/src".format(self.gopath)
@@ -73,7 +78,7 @@ def main():
 
     module = AnsibleModule(
         argument_spec = dict(
-            GOPATH  = dict(required = True),
+            GOPATH  = dict(required = False, default = None),
             package = dict(required = True),
         ),
         supports_check_mode = True

@@ -23,9 +23,11 @@
 - hosts: yayoi2
   vars:
     GOPATH : /home/upa/go2
+  environment:
+    GOPATH: "{{ GOPATH }}"
   tasks:
   - name: install openconfigd
-    go_get: GOPATH={{ GOPATH }} package={{ item }}
+    go_get: package={{ item }}
     with_items:
       - github.com/coreswitch/openconfigd/openconfigd
       - github.com/coreswitch/openconfigd/cli_command
@@ -54,8 +56,6 @@
     with_items:
       - dep ensure
       - go install
-    environment:
-      GOPATH: "{{ GOPATH }}"
     args:
       chdir: "{{ GOPATH }}/src/github.com/lagopus/vsw"
 
