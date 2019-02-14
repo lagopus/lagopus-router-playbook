@@ -26,11 +26,17 @@
   environment:
     GOPATH: "{{ GOPATH }}"
   tasks:
-  - name: install openconfigd
-    go_get: package={{ item }}
+
+#  - name: install openconfigd
+#    go_get: package={{ item }}
+#    with_items:
+#      - github.com/coreswitch/openconfigd/openconfigd
+#      - github.com/coreswitch/openconfigd/cli_command
+  - name: go get openconfigd
+    command: "{{ item }}"
     with_items:
-      - github.com/coreswitch/openconfigd/openconfigd
-      - github.com/coreswitch/openconfigd/cli_command
+      - go get github.com/coreswitch/openconfigd/openconfigd
+      - go get github.com/coreswitch/openconfigd/cli_command
 
   - name: configure, make, make install cli
     become: yes

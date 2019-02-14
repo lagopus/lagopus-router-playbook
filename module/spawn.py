@@ -14,7 +14,7 @@ class Spawn(object):
         self.stdout = module.params["stdout"]
         self.stderr = module.params["stderr"]
         self.pidfile = module.params["pidfile"]
-        self.restart = module.params["restart"]
+        self.respawn = module.params["respawn"]
         self.cwd = module.params["cwd"]
 
         if self.pidfile == "None":
@@ -86,8 +86,8 @@ class Spawn(object):
 
 
     def check(self):
-        if self.restart:
-            # 'restart' always kills and respawns the process
+        if self.respawn:
+            # 'respawn' always kills and respawns the process
             self.module.exit_json(changed = True)
 
         if self.find_process():
@@ -101,10 +101,10 @@ class Spawn(object):
         pid = self.find_process()
 
         if pid:
-            if not self.restart:
+            if not self.respawn:
                 self.module.exit_json(changed = False)
             else:
-                # the process exists and restart specified.
+                # the process exists and respawn specified.
                 # kill the process, and spawn the process
                 os.kill(pid, signal.SIGINT)
                 time.sleep(3) # XXX
@@ -121,7 +121,7 @@ def main():
             stdout = dict(required = False, default = "/dev/null"),
             stderr = dict(required = False, default = "/dev/null"),
             pidfile = dict(required = False, default = None),
-            restart = dict(required = False, type = "bool", default = False),
+            respawn = dict(required = False, type = "bool", default = False),
             cwd = dict(required = False, default = None),
         )
     )
