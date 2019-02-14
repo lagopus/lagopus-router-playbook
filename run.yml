@@ -4,6 +4,31 @@
     GOPATH : /home/upa/go2
   environment:
     GOPATH: "{{ GOPATH }}"
+    LD_LIBRARY_PATH: /usr/src/dpdk-stable-17.11.1/build/lib
   tasks:
+
+  - name: spawn openconfid
+    spawn:
+      args: "{{ GOPATH }}/bin/openconfigd -y modules:modules/policy:modules/bgp:modules/interfaces:modules/local-routing:modules/vlan:modules/rib:modules/network-instance:modules/types lagopus-router.yang"
+      cwd: "{{ GOPATH }}/src/github.com/lagopus/lagopus-router/yang"
+      pidfile: /tmp/openconfid.pid
+      stderr: /tmp/openconfigd-stderr
+      stdout: /tmp/openconfigd-stdout
+      restart: true
+    async: 10
+    poll: 0
+
   - name: put vsw.conf
     copy: src=vsw.conf dest=/home/upa/work/vsw-dir/vsw1.conf
+
+  - name: spawn vsw
+    spawn:
+      args: "{{ GOPATH }}/bin/vsw -v -f /home/upa/work/vsw-dir/vsw1.conf"
+      pidfile: /tmp/vsw.pid
+      stderr: /tmp/vsw-stderr
+      stdout: /tmp/vsw-stdout
+      restart: true
+    async: 10
+    poll: 10
+    become: yes
+
