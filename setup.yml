@@ -27,11 +27,6 @@
     GOPATH: "{{ GOPATH }}"
   tasks:
 
-#  - name: install openconfigd
-#    go_get: package={{ item }}
-#    with_items:
-#      - github.com/coreswitch/openconfigd/openconfigd
-#      - github.com/coreswitch/openconfigd/cli_command
   - name: go get openconfigd
     command: "{{ item }}"
     with_items:

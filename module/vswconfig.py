@@ -28,7 +28,7 @@ def main():
 
     module = AnsibleModule(
         argument_spec = dict(
-            config = dict(required = True),
+            config      = dict(required = True),
             cli_command = dict(required = False, default = "cli_command")
         ),
         supports_check_mode = False,

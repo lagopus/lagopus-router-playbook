@@ -117,9 +117,9 @@ def main():
 
     module = AnsibleModule(
         argument_spec = dict(
-            args = dict(required = True),
-            stdout = dict(required = False, default = "/dev/null"),
-            stderr = dict(required = False, default = "/dev/null"),
+            args    = dict(required = True),
+            stdout  = dict(required = False, default = "/dev/null"),
+            stderr  = dict(required = False, default = "/dev/null"),
             pidfile = dict(required = False, default = None),
             respawn = dict(required = False, type = "bool", default = False),
             cwd = dict(required = False, default = None),
