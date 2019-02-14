@@ -39,7 +39,7 @@
 
 
   - name: configure vsw
-    vsw_config: config={{ item }}
+    vswconfig: config={{ item }}
     with_items:
       - set network-instances network-instance vsi3 config type L2VSI
       - set network-instances network-instance vsi3 config enabled true
