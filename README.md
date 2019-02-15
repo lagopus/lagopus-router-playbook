@@ -30,7 +30,8 @@ igb_uio modules.
 | build_shared_lib | False     | Build DPDK with CONFIG_RTE_BUILD_SHARED_LIB=y compile option |
 | jobs      | 1                | number of CPUs used to compile DPDK source
 
-#### Examples
+
+#### Example
 
 ```
 - hosts: host
@@ -62,11 +63,11 @@ kernel 3.15 and later because of
 
 | Parameter | Cohices/Defaults | Comments |
 |-----------|------------------|----------|
-| device    |                  | PCI bus number |
-| driver    |                  | device driver name such as igb_uio, mlx5_core, ixgbe, etc. |
+| device    | Required         | PCI bus number |
+| driver    | Required         | device driver name such as igb_uio, mlx5_core, ixgbe, etc. |
 
 
-#### Examples:
+#### Example:
 
 ```
 - hosts: host
@@ -75,3 +76,115 @@ kernel 3.15 and later because of
   - name: bind device to dpdk driver
     devbind: device=000:01:00.0 driver=igb_uio
 ```
+
+
+### hugepages
+
+#### Synopsis:
+
+hugepages module allocates hugepages.
+
+
+#### Parameters:
+
+| Parameter | Cohices/Defaults | Comments |
+|-----------|------------------|----------|
+| size      | 2M or 1G, defualt is 2M | size of a hugepage |
+| nr_pages  | Required         | number of hugepages to be allocated |
+| node      | 0                | Numa node where hugepages to be allocated |
+
+
+#### Example:
+
+```
+- hosts: host
+  become: yes
+  tasks:
+  - name: set hugepages
+    hugepages: nr_pages=1024
+```
+
+
+
+### spawn
+
+#### Synopsis:
+
+spawn module spawns a program as a daemon process. Unlike *command*
+module, spawn module manages existance of the process. Note that this
+module must work with *async* and *poll* modules.
+
+
+#### Parameters:
+
+| Parameter | Cohices/Defaults | Comments |
+|-----------|------------------|----------|
+| args      | Required         | command arguments |
+| stdout    | /dev/null        | file path in which stdout output redirected |
+| stderr    | /dev/null        | file path in which stderr output redirected |
+| pidfile   | /var/run/[command] | pid file path |
+| respawn   | false            | if true, the existing process is killed and respawned. |
+| cwd       | ansible default dir | working directory |
+
+When respawn is false, spawn module checks pidfile. If the pidfile
+exists, it checks existance of a process with the pid. If the pidfile
+does not exist, it checks all processes and there cmdline.
+
+
+#### Example:
+
+```
+- hosts: host
+  become: yes
+  tasks:
+  - name: spawn vsw
+    spawn:
+      args: vsw -v -f /home/upa/work/vsw-dir/vsw1.conf
+      pidfile: /tmp/vsw.pid
+      stderr: /tmp/vsw-stderr
+      stdout: /tmp/vsw-stdout
+      respawn: true
+    async: 10
+    poll: 1
+    become: yes
+```
+
+
+### vswconfig
+
+
+#### Synopsis:
+
+vswconfig module is a lagopus-router specific module (correctly,
+openconfigd-specific). It configures vsw through cli_command of
+openconfigd.
+
+
+| Parameter | Cohices/Defaults | Comments |
+|-----------|------------------|----------|
+| config    | Required         | a command line for configuration mode |
+| cli_command | cli_command    | path for cli_command |
+
+
+#### Example:
+
+```
+- hosts: host
+  vars:
+    GOPATH : /home/upa/go
+  environment:
+    GOPATH: "{{ GOPATH }}"
+    PATH: "{{ lookup('env', 'PATH') }}:{{ GOPATH }}/bin"
+  tasks:
+  - name: configure vsw
+    vswconfig: config={{ item }}
+    with_items:
+      - set network-instances network-instance vsi3 config type L2VSI
+      - set network-instances network-instance vsi3 config enabled true
+      - commit
+```
+
+cli_command is usually installed in $GOPATH/bin directory. To execute
+cli_command from asnbile, set GOPATH and $GOPATH/bin in PATH env
+variables, or use `cli_command` parameter to specifiy cli_command
+path.
