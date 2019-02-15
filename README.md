@@ -12,14 +12,15 @@ we implemented 5 ansible modules, *dpdk_install*, *devbind*,
 *hugepages*, *spawn*, and *vswconfig*, for lagopus router, but they
 are not exclusive to lagopus.
 
-### dpdk_install
 
-#### Synopsis:
+## dpdk_install
+
+### Synopsis:
 
 dpdk_install module installs DPDK from source. It also loads uio and
 igb_uio modules.
 
-#### Parameters:
+### Parameters:
 
 | Parameter | Cohices/Defaults | Comments |
 |-----------|------------------|----------|
@@ -31,7 +32,7 @@ igb_uio modules.
 | jobs      | 1                | number of CPUs used to compile DPDK source
 
 
-#### Example
+### Example
 
 ```
 - hosts: host
@@ -46,9 +47,9 @@ directory is /usr/src/dpdk-stable-17.11.1/build as a result.
 
 
 
-### devbind
+## devbind
 
-#### Synopsis:
+### Synopsis:
 
 devbind module bind NIC to specified drivers. This module *DOES NOT*
 uses dpdk-devbind.py. This module modify
@@ -59,7 +60,7 @@ kernel 3.15 and later because of
 /sys/bus/pci/devices[PCI_BUS]/driver_override.
 
 
-#### Parameters:
+### Parameters:
 
 | Parameter | Cohices/Defaults | Comments |
 |-----------|------------------|----------|
@@ -67,7 +68,7 @@ kernel 3.15 and later because of
 | driver    | Required         | device driver name such as igb_uio, mlx5_core, ixgbe, etc. |
 
 
-#### Example:
+### Example:
 
 ```
 - hosts: host
@@ -78,14 +79,14 @@ kernel 3.15 and later because of
 ```
 
 
-### hugepages
+## hugepages
 
-#### Synopsis:
+### Synopsis:
 
-hugepages module allocates hugepages.
+ugepages module allocates hugepages.
 
 
-#### Parameters:
+### Parameters:
 
 | Parameter | Cohices/Defaults | Comments |
 |-----------|------------------|----------|
@@ -94,7 +95,7 @@ hugepages module allocates hugepages.
 | node      | 0                | Numa node where hugepages to be allocated |
 
 
-#### Example:
+### Example:
 
 ```
 - hosts: host
@@ -106,16 +107,16 @@ hugepages module allocates hugepages.
 
 
 
-### spawn
+## spawn
 
-#### Synopsis:
+### Synopsis:
 
 spawn module spawns a program as a daemon process. Unlike *command*
 module, spawn module manages existance of the process. Note that this
 module must work with *async* and *poll* modules.
 
 
-#### Parameters:
+### Parameters:
 
 | Parameter | Cohices/Defaults | Comments |
 |-----------|------------------|----------|
@@ -131,7 +132,7 @@ exists, it checks existance of a process with the pid. If the pidfile
 does not exist, it checks all processes and there cmdline.
 
 
-#### Example:
+### Example:
 
 ```
 - hosts: host
@@ -150,10 +151,10 @@ does not exist, it checks all processes and there cmdline.
 ```
 
 
-### vswconfig
+## vswconfig
 
 
-#### Synopsis:
+### Synopsis:
 
 vswconfig module is a lagopus-router specific module (correctly,
 openconfigd-specific). It configures vsw through cli_command of
@@ -166,7 +167,7 @@ openconfigd.
 | cli_command | cli_command    | path for cli_command |
 
 
-#### Example:
+### Example:
 
 ```
 - hosts: host
