@@ -42,8 +42,8 @@ igb_uio modules.
     dpdk_install: build_shared_lib=true jobs=6
 ```
 
-This playbook installs DPDK version 17.11.1 at /usr/src. The build
-directory is /usr/src/dpdk-stable-17.11.1/build as a result.
+This playbook installs DPDK version 17.11.1 into /usr/src, and the
+build directory is /usr/src/dpdk-stable-17.11.1/build as default.
 
 
 
@@ -64,7 +64,7 @@ because of /sys/bus/pci/devices[PCI_BUS]/driver_override.
 | Parameter | Cohices/Defaults | Comments |
 |-----------|------------------|----------|
 | device    | Required         | PCI bus number |
-| driver    | Required         | device driver name such as igb_uio, mlx5_core, ixgbe, etc. |
+| driver    | Required         | device driver name such as igb_uio, mlx5_core, ixgbe, etc |
 
 
 ### Example:
@@ -82,7 +82,7 @@ because of /sys/bus/pci/devices[PCI_BUS]/driver_override.
 
 ### Synopsis:
 
-ugepages module allocates hugepages.
+hugepages module allocates hugepages.
 
 
 ### Parameters:
@@ -123,7 +123,7 @@ module must work with *async* and *poll* modules.
 | stdout    | /dev/null        | file path in which stdout output redirected |
 | stderr    | /dev/null        | file path in which stderr output redirected |
 | pidfile   | /var/run/[command] | pid file path |
-| respawn   | false            | if true, the existing process is killed and respawned. |
+| respawn   | false            | if true, the existing process is killed and respawned |
 | cwd       | ansible default dir | working directory |
 
 When respawn is false, spawn module checks pidfile. If the pidfile
@@ -186,5 +186,4 @@ openconfigd.
 
 cli_command is usually installed in $GOPATH/bin directory. To execute
 cli_command from asnbile, set GOPATH and $GOPATH/bin in PATH env
-variables, or use `cli_command` parameter to specifiy cli_command
-path.
+variable, or use `cli_command` parameter to specifiy cli_command path.
