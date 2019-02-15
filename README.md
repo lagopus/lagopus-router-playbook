@@ -52,12 +52,11 @@ directory is /usr/src/dpdk-stable-17.11.1/build as a result.
 ### Synopsis:
 
 devbind module bind NIC to specified drivers. This module *DOES NOT*
-uses dpdk-devbind.py. This module modify
-/sys/bus/pci/devices/[PCI_BUS] and /sys/bus/pci/drivers/[DRV_NAME].
-Thus, this module does not depend on DPDK, so that it can apply to any
-PCI devices and device drivers mapping. Note that this requires Linux
-kernel 3.15 and later because of
-/sys/bus/pci/devices[PCI_BUS]/driver_override.
+use dpdk-devbind.py. This module modify /sys/bus/pci/devices/[PCI_BUS]
+and /sys/bus/pci/drivers/[DRV_NAME].  Thus, this module does not
+depend on DPDK, so that it can apply to any PCI devices and device
+drivers mapping. Note that this requires Linux kernel 3.15 and later
+because of /sys/bus/pci/devices[PCI_BUS]/driver_override.
 
 
 ### Parameters:
