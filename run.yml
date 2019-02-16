@@ -11,7 +11,7 @@
   tasks:
 
   - name: put vsw.conf
-    copy: src=vsw.conf dest=/home/upa/work/vsw-dir/vsw1.conf
+    copy: src=provisioning/vsw.conf dest=/home/upa/work/vsw-dir/vsw1.conf
 
 
   - name: spawn openconfid
