@@ -8,9 +8,10 @@ lagopus-router setup, spawn, and configuration.
 
 ## Quick Start
 
-1. install lagopus-router on your localhost (tested on ubuntu 18.04).
+### 1. Install lagopus-router on your local Linux machine
 
-Install ansible and run site.yml.
+
+Install ansible and run site.yml. We tested on ubuntu 18.04.
 
 ```
 sudo apt install ansible
@@ -34,10 +35,11 @@ igb_uio. Please modify here before executing ansible if needed.
 ```
 
 
-2. Test lagopus-router using vagrant (tested on macos, virtualbox, and
-vagrant 2.2.23).
+### 2. Test lagopus-router using vagrant
 
-Install VirtualBox, Vagrant, and ansible.
+Install VirtualBox, Vagrant, and ansible. We tested on macOS 10.13.6,
+VirtualBox 5.2.24, Vagrant 2.2.23, and Ansible 2.7.6 installed from
+brew.
 
 ```
 brew install ansible
@@ -48,7 +50,7 @@ ANSIBLE_LIBRARY=module vagrant up --provision
 ```
 
 This Vagrantfile creates two VMs based on generic/ubuntu1804. One is a
-lagopus-router and another is a simple linux node. The default
+lagopus-router and another is a simple linux node. The created
 topology is shown below.
 
 ```
@@ -84,14 +86,14 @@ topology is shown below.
 +----------------------------------+
 ```
 
-Vagrant creates two ubuntu VMs, and ansible provisions lagopus-router
-installation, configuration, and execution.  After `vagrant up`
+Vagrant creates two ubuntu VMs, and ansible does lagopus-router
+installation, configuration, and execution. After `vagrant up`
 finished, you can ssh by `vagrant ssh node1` and ping to 10.0.0.21
-through lagopus-router.
+through lagopus-router from defaulet netns on node1.
 
-`provisioning` directory contains ansible-related files for both VMs.
-setup.yml installs lagopus-router, and lagopus.yml spawns vsw and
-openconfigd. node.yml just creates and setup netns on node1.
+`provisioning` directory contains playbooks for this example.
+`setup.yml` installs lagopus-router, and `lagopus.yml` spawns vsw and
+openconfigd. `node1.yml` just creates and setup netns on node1.
 
 
 
