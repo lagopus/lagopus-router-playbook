@@ -1,24 +1,27 @@
 
-# install required software
 - hosts: localhost
-  become: yes
+  vars:
+    GOPATH : "{{ lookup('env', 'HOME') }}/go"
+    VSWCONF: /usr/local/etc/vsw.conf
+  environment:
+    GOPATH: "{{ GOPATH }}"
+    PATH: "{{ lookup('env', 'PATH') }}:{{ GOPATH }}/bin"
+    LD_LIBRARY_PATH: /usr/src/dpdk-stable-17.11.1/build/lib
+
   tasks:
+
+# install required software
   - name: install required packages
+    become: yes
     apt:
       name: [ "libnuma-dev", "libelf-dev", "golang", "go-dep" ]
 
   - name: install dpdk
+    become: yes
     dpdk_install: build_shared_lib=true jobs=6
 
 
 # install lagopus-router and related software
-- hosts: localhost
-  vars:
-    GOPATH : /home/upa/go2
-  environment:
-    GOPATH: "{{ GOPATH }}"
-  tasks:
-
   - name: go get openconfigd
     command: "{{ item }}"
     with_items:
@@ -59,17 +62,6 @@
 
 
 # setup, spawn, and configure vsw
-- hosts: localhost
-  vars:
-    GOPATH : /home/upa/go2
-    VSWCONF: /usr/local/etc/vsw.conf
-  environment:
-    GOPATH: "{{ GOPATH }}"
-    PATH: "{{ lookup('env', 'PATH') }}:{{ GOPATH }}/bin"
-    LD_LIBRARY_PATH: /usr/src/dpdk-stable-17.11.1/build/lib
-
-  tasks:
-
   - name: spawn openconfid
     spawn:
       args: openconfigd -y modules:modules/policy:modules/bgp:modules/interfaces:modules/local-routing:modules/vlan:modules/rib:modules/network-instance:modules/types lagopus-router.yang
@@ -82,15 +74,19 @@
     poll: 1
 
   - name: set hugepages
+    become: yes
     hugepages: nr_pages=1024
 
   - name: bind device to dpdk driver
+    become: yes
     devbind: device=000:01:00.0 driver=igb_uio
 
   - name: put vsw.conf
+    become: yes
     copy: src=provisioning/vsw.conf dest={{ VSWCONF }}
 
   - name: spawn vsw
+    become: yes
     spawn:
       args: vsw -v -f {{ VSWCONF }}
       pidfile: /tmp/vsw.pid
@@ -99,7 +95,6 @@
       respawn: true
     async: 10
     poll: 1
-    become: yes
 
   - name: configure vsw
     vswconfig: config={{ item }}
