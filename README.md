@@ -6,6 +6,95 @@ This repository contains ansible modules and exmaple playbooks for
 lagopus-router setup, spawn, and configuration.
 
 
+## Quick Start
+
+1. install lagopus-router on your localhost (tested on ubuntu 18.04).
+
+Install ansible and run site.yml.
+
+```
+sudo apt install ansible
+
+# prepare ssh-keys or pass-phrase to execute ansible-playbook
+
+git clone https://github.com/upa/lagopus-router-ansible.git
+cd lagopus-rotuer-ansible
+ANSIBLE_LIBRARY=module ansible-playbook -i hosts site.yml
+```
+
+ANSIBLE_LIBRARY adds ansible modules in this repository to ansible
+module path. Note that default site.yml try to bind 0000:01:00.0 to
+igb_uio. Please modify here before executing ansible if needed.
+
+```
+# in lagopus-router-ansible/site.yml
+  - name: bind device to dpdk driver
+    become: yes
+    devbind: device=000:01:00.0 driver=igb_uio  # <= here
+```
+
+
+2. Test lagopus-router using vagrant (tested on macos, virtualbox, and
+vagrant 2.2.23).
+
+Install VirtualBox, Vagrant, and ansible.
+
+```
+brew install ansible
+
+git clone https://github.com/upa/lagopus-router-ansible.git
+cd lagopus-rotuer-ansible
+ANSIBLE_LIBRARY=module vagrant up --provision
+```
+
+This Vagrantfile creates two VMs based on generic/ubuntu1804. One is a
+lagopus-router and another is a simple linux node. The default
+topology is shown below.
+
+```
++----------------------------------+
+|             lagopus1             |
+|  +----------------------------+  |
+|  | VSI1                       |  |
+|  |  +----------------------+  |  |
+|  |  |    Bridge Vlan100    |  |  |
+|  |  |        Vlan100       |  |  |
+|  |  +---+--------------+---+  |  |
+|  |      |              |      |  |
+|  +----------------------------+  |
+|         |              |         |
+|     +---+---+      +---+---+     |
+|     | if0.0 |      | if1.0 |     |
+|     +---+---+      +---+---+     |
+|         | VID:100      | VID:100 |
+|      +--+--+        +--+--+      |
+|      | if0 |        | if1 |      |
++------+--+--+--------+--+--+------+
+          |              |        
+          |              |
+          |              |
++-----+---+---+---+--+---+---+--+--|
+|     |  eth2 |   |  |  eth3 |  |  |
+|     +---+---+   |  +---+---+  |  |
+|     10.0.0.20   |  10.0.0.21  |  |
+|		  |             |  |
+|		  |   testns    |  |
+|                 +-------------+  |
+|               node1              |
++----------------------------------+
+```
+
+Vagrant creates two ubuntu VMs, and ansible provisions lagopus-router
+installation, configuration, and execution.  After `vagrant up`
+finished, you can ssh by `vagrant ssh node1` and ping to 10.0.0.21
+through lagopus-router.
+
+`provisioning` directory contains ansible-related files for both VMs.
+setup.yml installs lagopus-router, and lagopus.yml spawns vsw and
+openconfigd. node.yml just creates and setup netns on node1.
+
+
+
 ## Ansible Modules for Lagopus Router
 
 we implemented 5 ansible modules, *dpdk_install*, *devbind*,
