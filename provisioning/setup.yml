@@ -58,10 +58,6 @@
     become: yes
     hugepages: nr_pages=1024
 
-  - name: bind device to dpdk driver
-    become: yes
-    devbind: device=0000:00:09.0 driver=igb_uio
- 
   - name: spawn openconfid
     spawn:
       args: openconfigd -y modules:modules/policy:modules/bgp:modules/interfaces:modules/local-routing:modules/vlan:modules/rib:modules/network-instance:modules/types lagopus-router.yang
@@ -69,15 +65,6 @@
       pidfile: /tmp/openconfid.pid
       stderr: /tmp/openconfigd-stderr
       stdout: /tmp/openconfigd-stdout
-    async: 10
-    poll: 1
-
-  - name: spawn vsw
-    become: yes
-    spawn:
-      args: vsw -v -f {{ VSWCONF }}
-      pidfile: /tmp/vsw.pid
-      stderr: /tmp/vsw-stderr
-      stdout: /tmp/vsw-stdout
+      respawn: true
     async: 10
     poll: 1

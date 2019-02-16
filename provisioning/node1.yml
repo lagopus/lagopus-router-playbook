@@ -1,0 +1,21 @@
+
+- hosts: node1
+  become: yes
+  gather_facts: no
+  pre_tasks:
+    - name: install python2
+      raw: sudo apt-get install -y python
+
+- hosts: node1
+  become: yes
+  vars:
+    NETNS: testns
+  tasks:
+
+  - name: setup networking
+    command: "{{ item }}"
+    with_items:
+      - ip netns add {{ NETNS }}
+      - ip link set dev eth3 netns {{ NETNS }}
+      - ip netns exec {{ NETNS }} ip link set dev eth3 up
+      - ip netns exec {{ NETNS }} ip addr add dev eth3 10.0.0.21/24

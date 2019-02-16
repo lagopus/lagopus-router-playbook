@@ -1,0 +1,71 @@
+  
+# ubuntu 18.04 does not have python2 by default
+# but ansible still depends on python2
+- hosts: lagopus
+  become: yes
+  gather_facts: no
+  pre_tasks:
+    - name: install python2
+      raw: sudo apt-get install -y python
+
+# configure lagopus
+- hosts: lagopus
+  vars:
+    GOPATH : /home/vagrant/go
+    VSWCONF: /home/vagrant/vsw.conf
+  environment:
+    GOPATH: "{{ GOPATH }}"
+    PATH: "{{ lookup('env', 'PATH') }}:{{ GOPATH }}/bin"
+    LD_LIBRARY_PATH: /usr/src/dpdk-stable-17.11.1/build/lib
+
+  tasks:
+  - include: setup.yml
+
+  - name: bind device to dpdk driver
+    become: yes
+    devbind: device={{ item }} driver=igb_uio
+    with_items:
+      - "0000:00:09.0"
+      - "0000:00:0a.0"
+
+  - name: spawn vsw
+    become: yes
+    spawn:
+      args: vsw -v -f {{ VSWCONF }}
+      pidfile: /tmp/vsw.pid
+      stderr: /tmp/vsw-stderr
+      stdout: /tmp/vsw-stdout
+      respawn: true
+    async: 10
+    poll: 1
+
+  - name: configure vsw
+    vswconfig: config={{ item }}
+    with_items:
+      - set interfaces interface if0 config mtu 1514
+      - set interfaces interface if0 config driver dpdk
+      - set interfaces interface if0 config device 0000:00:09.0
+      - set interfaces interface if0 config type ethernetCsmacd
+      - set interfaces interface if0 ethernet switched-vlan config interface-mode ACCESS
+      - set interfaces interface if0 ethernet switched-vlan config access-vlan 100
+      - set interfaces interface if0 subinterfaces subinterface 0 config enabled true
+      - set interfaces interface if0 subinterfaces subinterface 0 vlan config vlan-id 100
+      - set interfaces interface if0 config enabled true
+      - set interfaces interface if1 config mtu 1514
+      - set interfaces interface if1 config driver dpdk
+      - set interfaces interface if1 config device 0000:00:0a.0
+      - set interfaces interface if1 config type ethernetCsmacd
+      - set interfaces interface if1 ethernet switched-vlan config interface-mode ACCESS
+      - set interfaces interface if1 ethernet switched-vlan config access-vlan 100
+      - set interfaces interface if1 subinterfaces subinterface 0 vlan config vlan-id 100
+      - set interfaces interface if1 subinterfaces subinterface 0 config enabled true
+      - set interfaces interface if1 config enabled true
+      - set network-instances network-instance vsi1 config type L2VSI
+      - set network-instances network-instance vsi1 config enabled true
+      - set network-instances network-instance vsi1 vlans vlan 100 config status ACTIVE
+      - set network-instances network-instance vsi1 fdb config mac-learning true
+      - set network-instances network-instance vsi1 fdb config mac-aging-time 300
+      - set network-instances network-instance vsi1 fdb config maximum-entries 3000
+      - set network-instances network-instance vsi1 interfaces interface if0 subinterface 0
+      - set network-instances network-instance vsi1 interfaces interface if1 subinterface 0
+      - commit
