@@ -5,7 +5,7 @@
   - name: install required packages
     become: yes
     apt:
-      name: [ "libnuma-dev", "libelf-dev", "golang", "go-dep" ]
+      name: [ "libnuma-dev", "libelf-dev", "autoconf", "golang", "go-dep" ]
 
   - name: install dpdk
     become: yes
