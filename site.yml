@@ -1,6 +1,7 @@
 
 - hosts: localhost
-  connection: local vars:
+  connection: local
+  vars:
     GOPATH : "{{ lookup('env', 'HOME') }}/go"
     VSWCONF: /usr/local/etc/vsw.conf
   environment:
