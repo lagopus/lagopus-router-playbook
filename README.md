@@ -20,11 +20,10 @@ sudo apt install ansible
 
 git clone https://github.com/upa/lagopus-router-ansible.git
 cd lagopus-rotuer-ansible
-ANSIBLE_LIBRARY=module ansible-playbook -i hosts site.yml
+ANSIBLE_LIBRARY=module ansible-playbook --ask-become-pass -i hosts site.yml
 ```
 
-ANSIBLE_LIBRARY adds ansible modules in this repository to ansible
-module path. Note that default site.yml try to bind 0000:01:00.0 to
+Note that default site.yml tries to bind 0000:01:00.0 to
 igb_uio. Please modify here before executing ansible if needed.
 
 ```
@@ -115,7 +114,7 @@ igb_uio modules.
 
 | Parameter | Cohices/Defaults | Comments |
 |-----------|------------------|----------|
-| version   | 17.11.1          | DPDK version. |
+| version   | 18.11.1          | DPDK version. |
 | url       | http://fast.dpdk.org/rel/dpdk-[version].tar.xz | URL where DPDK source tar ball exists |
 | target    | x86_64-native-linuxapp-gcc | DPDK compile target architecture |
 | build_dir | /usr/src         | where DPDK source is extracted. |
@@ -133,8 +132,8 @@ igb_uio modules.
     dpdk_install: build_shared_lib=true jobs=6
 ```
 
-This playbook installs DPDK version 17.11.1 into /usr/src, and the
-build directory is /usr/src/dpdk-stable-17.11.1/build as default.
+This playbook installs DPDK version 18.11.1 into /usr/src, and the
+build directory is /usr/src/dpdk-stable-18.11.1/build as default.
 
 
 
@@ -144,10 +143,10 @@ build directory is /usr/src/dpdk-stable-17.11.1/build as default.
 
 devbind module bind NIC to specified drivers. This module *DOES NOT*
 use dpdk-devbind.py. This module modify /sys/bus/pci/devices/[PCI_BUS]
-and /sys/bus/pci/drivers/[DRV_NAME].  Thus, this module does not
-depend on DPDK, so that it can apply to any PCI devices and device
-drivers mapping. Note that this requires Linux kernel 3.15 and later
-because of /sys/bus/pci/devices[PCI_BUS]/driver_override.
+and /sys/bus/pci/drivers/[DRV_NAME]. Thus, this module does not depend
+on DPDK so that it can apply to any PCI devices and device drivers
+mapping. Note that this requires Linux kernel 3.15 and later because
+of /sys/bus/pci/devices[PCI_BUS]/driver_override.
 
 
 ### Parameters:

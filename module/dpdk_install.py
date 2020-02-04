@@ -192,7 +192,7 @@ def main():
 
     module = AnsibleModule(
         argument_spec = dict(
-            version          = dict(default = "17.11.1"),
+            version          = dict(default = "18.11.1"),
             url              = dict(default = None),
             target           = dict(default = "x86_64-native-linuxapp-gcc"),
             build_dir        = dict(default = "/usr/src"),

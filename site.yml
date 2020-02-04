@@ -1,12 +1,11 @@
 
 - hosts: localhost
-  vars:
+  connection: local vars:
     GOPATH : "{{ lookup('env', 'HOME') }}/go"
     VSWCONF: /usr/local/etc/vsw.conf
   environment:
     GOPATH: "{{ GOPATH }}"
     PATH: "{{ lookup('env', 'PATH') }}:{{ GOPATH }}/bin"
-    LD_LIBRARY_PATH: /usr/src/dpdk-stable-17.11.1/build/lib
 
   tasks:
 
@@ -14,7 +13,7 @@
   - name: install required packages
     become: yes
     apt:
-      name: [ "libnuma-dev", "libelf-dev", "golang", "go-dep" ]
+      name: [ "libnuma-dev", "libelf-dev", "golang", "go-dep", "libpcap-dev", "libssl-dev", "libgmp-dev", "byacc", "flex" ]
 
   - name: install dpdk
     become: yes
@@ -39,8 +38,23 @@
     args:
       chdir: "{{ GOPATH }}/src/github.com/coreswitch/openconfigd/cli"
 
-  - name: create vsw src directroy
+  - name: create github.com/lagopus directroy under GOPATH
     file: path={{ GOPATH }}/src/github.com/lagopus state=directory
+
+  - name: download lagopus/utils
+    git:
+      repo: https://github.com/lagopus/utils
+      dest: "{{ GOPATH }}src/github.com/lagopus/utils"
+
+  - name: install lagopus/utils
+    become: yes
+    command: "{{ item }}"
+    with_items:
+      - ./configure
+      - make
+      - make install
+    args:
+      chdir: "{{ GOPATH }}src/github.com/lagopus/utils"
 
   - name: download vsw
     git:
@@ -54,8 +68,11 @@
       - go install
     args:
       chdir: "{{ GOPATH }}/src/github.com/lagopus/vsw"
+    environment:
+      CGO_CFLAGS: "-I/usr/local/include/dpdk"
+      CGO_LDFLAGS: "-L/usr/local/lib -ldpdk"
 
-  - name: install lagopus-router
+  - name: download lagopus-router
     git:
       repo: https://github.com/lagopus/lagopus-router.git
       dest: "{{ GOPATH }}/src/github.com/lagopus/lagopus-router"
@@ -88,13 +105,15 @@
   - name: spawn vsw
     become: yes
     spawn:
-      args: vsw -v -f {{ VSWCONF }}
+      args: vsw -f {{ VSWCONF }}
       pidfile: /tmp/vsw.pid
       stderr: /tmp/vsw-stderr
       stdout: /tmp/vsw-stdout
       respawn: true
     async: 10
     poll: 1
+    environment:
+      LD_LIBRARY_PATH: "/usr/src/dpdk-stable-17.11.1/build/lib:/usr/local/lib"
 
   - name: configure vsw
     vswconfig: config={{ item }}
