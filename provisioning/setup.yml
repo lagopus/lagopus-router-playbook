@@ -33,6 +33,21 @@
   - name: create vsw src directroy
     file: path={{ GOPATH }}/src/github.com/lagopus state=directory
 
+  - name: download lagopus/utils
+    git:
+      repo: https://github.com/lagopus/utils
+      dest: "{{ GOPATH }}src/github.com/lagopus/utils"
+
+  - name: install lagopus/utils
+    become: yes
+    command: "{{ item }}"
+    with_items:
+      - ./configure
+      - make
+      - make install
+    args:
+      chdir: "{{ GOPATH }}src/github.com/lagopus/utils"
+
   - name: download vsw
     git:
       repo: https://github.com/lagopus/vsw.git
@@ -45,6 +60,9 @@
       - go install
     args:
       chdir: "{{ GOPATH }}/src/github.com/lagopus/vsw"
+    environment:
+      CGO_CFLAGS: "-I/usr/local/include/dpdk"
+      CGO_LDFLAGS: "-L/usr/local/lib -ldpdk"
 
   - name: install lagopus-router
     git:

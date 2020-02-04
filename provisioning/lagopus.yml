@@ -31,13 +31,15 @@
   - name: spawn vsw
     become: yes
     spawn:
-      args: vsw -v -f {{ VSWCONF }}
+      args: vsw -f {{ VSWCONF }}
       pidfile: /tmp/vsw.pid
       stderr: /tmp/vsw-stderr
       stdout: /tmp/vsw-stdout
       respawn: true
     async: 10
     poll: 1
+    environment:
+      LD_LIBRARY_PATH: "/usr/src/dpdk-stable-18.11.1/build/lib:/usr/local/lib"
 
   - name: configure vsw
     vswconfig: config={{ item }}

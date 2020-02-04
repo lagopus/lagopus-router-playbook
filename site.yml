@@ -114,7 +114,7 @@
     async: 10
     poll: 1
     environment:
-      LD_LIBRARY_PATH: "/usr/src/dpdk-stable-17.11.1/build/lib:/usr/local/lib"
+      LD_LIBRARY_PATH: "/usr/src/dpdk-stable-18.11.1/build/lib:/usr/local/lib"
 
   - name: configure vsw
     vswconfig: config={{ item }}
