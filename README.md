@@ -33,8 +33,8 @@ igb_uio. Please modify here before executing ansible if needed.
     devbind: device=000:01:00.0 driver=igb_uio  # <= here
 ```
 
-After ansible-playbook finished, run cli (GOPATH/bin must be included
-in PATH).
+After ansible-playbook finished, run cli ($GOPATH/bin must be included
+in $PATH).
 
 ```
 cli
