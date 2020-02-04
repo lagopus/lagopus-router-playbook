@@ -1,6 +1,6 @@
 
 
-# lagopus-router-ansible
+# lagopus-router-playbook
 
 This repository contains ansible modules and exmaple playbooks for
 lagopus-router setup, spawn, and configuration.
