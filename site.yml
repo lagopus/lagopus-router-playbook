@@ -14,7 +14,7 @@
   - name: install required packages
     become: yes
     apt:
-      name: [ "libnuma-dev", "libelf-dev", "golang", "go-dep", "libpcap-dev", "libssl-dev", "libgmp-dev", "byacc", "flex" ]
+      name: [ "libnuma-dev", "libelf-dev", "golang", "go-dep", "libpcap-dev", "libssl-dev", "libgmp-dev", "byacc", "flex", "linux-modules-extra-{{ ansible_kernel }}" ]
 
   - name: install dpdk
     become: yes

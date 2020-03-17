@@ -174,6 +174,14 @@ class DPDKInstall(object):
             changed = True
             msgs.append("install igb_uio kernel module.")
 
+        # install uio_pci_generic kernel module
+        if not self.check_kmod_installed("uio_pci_generic"):
+            if check:
+                msg = "install uio_pci_generic kernel module"
+                self.module.exit_json(changed = True, msg = msg)
+
+            self.run_cmd(["modprobe", "uio_pci_generic"], "failed to modprobe uio_pci_generic")
+
         if check:
             self.module.exit_json(changed = False)
 
