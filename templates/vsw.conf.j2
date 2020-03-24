@@ -1,0 +1,39 @@
+# VSW configuration file
+
+# DPDK configuration section
+[dpdk]
+core_mask = {{ dpdk.core_mask }}
+memory_channel = {{ dpdk.memory_channel }}
+pmd_path = {{ dpdk.pmd_path }}
+num_elements = {{ dpdk.num_elements }}
+cache_size = {{ dpdk.cache_size }}
+
+# Openconfigd section
+[openconfig]
+server_host = {{ openconfigd.server_host }}
+server_port = {{ openconfigd.server_port }}
+listen_port = {{ openconfigd.listen_port }}
+
+# ethdev configuration section
+[ethdev]
+rx_core = {{ ethdev.rx_core }}
+tx_core = {{ ethdev.tx_core }}
+
+# bridge configuration section
+[bridge]
+core = {{ bridge.core }}
+
+# RIF configuration section
+[rif]
+core = {{ rif.core }}
+
+# tunnel configuration section
+[tunnel]
+  # IP in IP tunnel
+  [tunnel.ipip]
+  inbound_core = {{ tunnel.ipip.inbound_core }}
+  outbound_core = {{ tunnel.ipip.outbound_core }}
+
+# router configuration section
+[router]
+core = {{ router.core }}
