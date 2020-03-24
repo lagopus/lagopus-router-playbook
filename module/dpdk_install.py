@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import os
+import platform
 
 class DPDKInstall(object):
 
@@ -76,6 +77,17 @@ class DPDKInstall(object):
                             return True
         return False
 
+    def check_igb_uio_vermagic(self):
+        if os.path.exists(self.igb_uio):
+            args = ["modinfo", "-F", "vermagic", self.igb_uio]
+            args[0] = self.module.get_bin_path("modinfo", required = True)
+            (rc, stdout, stderr) = self.module.run_command(args)
+            if rc == 0:
+                vermagic = stdout.split(" ")
+                if vermagic[0] == platform.release():
+                    return False
+        return True
+
     def check_kmod_installed(self, modname):
         
         with open("/proc/modules") as f:
@@ -84,7 +96,6 @@ class DPDKInstall(object):
                 if modname == mod:
                     return True
         return False
-
 
     def do(self, check = False):
 
@@ -128,7 +139,8 @@ class DPDKInstall(object):
 
         # compile and install dpdk (if not installed or config changed)
         if (not os.path.exists("/usr/local/include/dpdk") or
-            self.check_dpdk_common_base(params)):
+            self.check_dpdk_common_base(params) or
+            self.check_igb_uio_vermagic()):
 
             if check:
                 msg = "library /usr/local/include/dpdk does not installed"
@@ -173,6 +185,14 @@ class DPDKInstall(object):
 
             changed = True
             msgs.append("install igb_uio kernel module.")
+
+        # install uio_pci_generic kernel module
+        if not self.check_kmod_installed("uio_pci_generic"):
+            if check:
+                msg = "install uio_pci_generic kernel module"
+                self.module.exit_json(changed = True, msg = msg)
+
+            self.run_cmd(["modprobe", "uio_pci_generic"], "failed to modprobe uio_pci_generic")
 
         if check:
             self.module.exit_json(changed = False)
