@@ -1,0 +1,31 @@
+
+---
+dpdk:
+  core_mask: 0x07
+  memory_channel: 2
+  pmd_path: "/usr/local/lib"
+  num_elements: 131072
+  cache_size: 256
+
+openconfigd:
+  server_host: "localhost"   # Openconfigd server host
+  server_port: 2650      # Openconfigd server port
+  listen_port: 2653      # Port to listen for show command
+
+ethdev:
+  rx_core: 1 # Slave core to use for RX
+  tx_core: 2 # Slave core to use for TX
+
+bridge:
+  core: 2
+
+rif:
+  core: 2
+
+tunnel:
+  ipip:
+    inbound_core: 1
+    outbound_core: 2
+
+router:
+  core: 2
