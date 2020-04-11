@@ -1,5 +1,13 @@
 
 ---
+
+agents:
+  enable:
+  - netlink
+  - config
+  - ipsec
+  - debugsh
+
 dpdk:
   core_mask: 0x07
   memory_channel: 2

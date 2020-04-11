@@ -106,6 +106,7 @@ class DPDKInstall(object):
             params.append(("CONFIG_RTE_BUILD_SHARED_LIB", "y"))
         else:
             params.append(("CONFIG_RTE_BUILD_SHARED_LIB", "n"))
+        params.append(("CONFIG_RTE_LIBRTE_PMD_OPENSSL", "y"))
 
 
         # make build dir

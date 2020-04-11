@@ -1,5 +1,23 @@
 # VSW configuration file
 
+# agents configuration section
+[agents]
+enable = [{{ agents.enable | join(", ") }}]
+# enable = [ "netlink", "config", "debugsh" ]
+
+# Logging settings
+[logging]
+log = "stdout" # "file", "stdout", or "syslog"
+# syslog = "localhost:627"
+# syslog_network = "tcp" | "udp"
+# syslog_tag = "lagopus2"
+# syslog_priority = "LOG_USER"
+# logfile = "/var/log/vsw.log"
+# verbose = true # Outputs file and line number in C
+# debugs = [ "ethdev", "bridge" ] # to debug "ethdev" and "bridge"
+debugs = [ "*" ] # to debug all modules
+
+
 # DPDK configuration section
 [dpdk]
 core_mask = {{ dpdk.core_mask }}
@@ -7,6 +25,7 @@ memory_channel = {{ dpdk.memory_channel }}
 pmd_path = {{ dpdk.pmd_path }}
 num_elements = {{ dpdk.num_elements }}
 cache_size = {{ dpdk.cache_size }}
+vdevs = [{{ dpdk.vdev | join(", ") }}]
 
 # Openconfigd section
 [openconfig]
@@ -30,6 +49,11 @@ core = {{ rif.core }}
 # tunnel configuration section
 [tunnel]
   # IP in IP tunnel
+  [tunnel.ipsec]
+  core_bind = {{ tunnel.ipsec.core_bind }}
+  inbound_core_mask = {{ tunnel.ipsec.inbound_core_mask }}
+  outbound_core_mask = {{ tunnel.ipsec.outbound_core_mask }}
+
   [tunnel.ipip]
   inbound_core = {{ tunnel.ipip.inbound_core }}
   outbound_core = {{ tunnel.ipip.outbound_core }}
